@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>UNAPEC - Gestión de Estudiantes</title>
+    
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    
+    
+        <!-- DataTables CSS -->
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+
+
+        <style>
+          /* Estilo para el encabezado de la tabla */
+    .table thead {
+        background-color: #1d3557; /* Azul oscuro moderno */
+        color: white;
+    }
+    
+    /* Estilo para filas en hover */
+    .table-hover tbody tr:hover {
+        background-color: #e0f7fa; /* Azul claro sutil para hover */
+    }
+    
+    /* Sidebar */
+    .sidebar {
+        background-color: #457b9d; /* Azul medio */
+        color: white;
+        min-height: 100vh;
+        width: 250px;
+    }
+    .sidebar h3 {
+        text-align: center;
+        padding: 20px 0;
+        font-weight: bold;
+    }
+    .sidebar a {
+        color: white;
+        display: block;
+        padding: 15px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+    }
+    .sidebar a:hover {
+        background-color: #1d3557; /* Azul oscuro en hover */
+    }
+    
+    /* Navbar */
+    .navbar {
+        background-color: #a8dadc; /* Azul pastel claro */
+        border-bottom: 2px solid #1d3557;
+    }
+    .navbar-brand {
+        font-weight: bold;
+        color: #1d3557;
+    }
+    
+    /* Botones */
+    .btn-success {
+        background-color: #2a9d8f; /* Verde menta */
+        border: none;
+        color: white;
+    }
+    .btn-success:hover {
+        background-color: #21867a; /* Verde menta oscuro */
+    }
+    .btn-primary {
+        background-color: #457b9d; /* Azul medio */
+        border: none;
+        color: white;
+    }
+    .btn-primary:hover {
+        background-color: #1d3557; /* Azul oscuro */
+    }
+    .btn-danger {
+        background-color: #e63946; /* Rojo vibrante */
+        border: none;
+        color: white;
+    }
+    .btn-danger:hover {
+        background-color: #d62839; /* Rojo oscuro */
+    }
+    
+    /* Footer */
+    .footer {
+        background-color: #f1faee; /* Color neutro claro */
+        color: #1d3557;
+        text-align: center;
+        padding: 15px;
+        position: fixed;
+        width: 100%;
+        bottom: 0;
+    }
+    
+    /* Contenido Principal */
+    .content {
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 25px;
+        margin: 20px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Sidebar responsive para pantallas pequeñas */
+    @media (max-width: 768px) {
+        .sidebar {
+            position: absolute;
+            left: -220px;
+            transition: left 0.3s;
+        }
+    
+        .sidebar.active {
+            left: 0;
+        }
+    
+        .btn-editar, .btn-eliminar {
+            width: 100%;
+        }
+    }
+    
+    /* Ajuste de botones en pantallas pequeñas */
+    @media (max-width: 768px) {
+        .d-flex {
+            flex-direction: column; /* Alinea los botones en columna */
+        }
+        .btn-sm {
+            width: 100%; /* Botones ocupan todo el ancho */
+            justify-content: center;
+        }
+    }
+
+    /* Estilo general para la Sidebar */
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    background-color: #2a9d8f; /* Verde menta */
+    color: white;
+    transition: all 0.3s;
+}
+
+.sidebar h3 {
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.sidebar a {
+    text-decoration: none;
+    font-size: 1.1rem;
+    padding: 10px 0;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.sidebar a:hover {
+    color: white;
+    padding-left: 10px; /* Efecto leve de desplazamiento */
+}
+
+.sidebar .active-link {
+    background-color: #093047; /* Azul medio */
+    font-weight: bold;
+}
+
+.btn-delete{
+    color: #e63946;
+}
+
+/* Responsivo para pantallas pequeñas */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: -100%;
+        transition: left 0.3s;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+}
+
+/* Modal General */
+.modal-content {
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    background-color: #ffffff;
+}
+
+/* Header con fondo verde */
+.modal-header {
+    background-color: #28a745; /* Color verde */
+    color: white;
+    padding: 1rem 1.5rem;
+    border-bottom: none;
+    position: relative;
+}
+
+.modal-title {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.25rem;
+}
+
+/* Botón de cerrar */
+.modal-header .close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    color: white;
+    font-size: 1.5rem;
+    background: none;
+    border: none;
+    opacity: 0.8;
+    transition: opacity 0.3s;
+}
+
+.modal-header .close:hover {
+    opacity: 1;
+}
+
+/* Cuerpo del Modal */
+.modal-body {
+    padding: 2rem;
+    background-color: #f8f9fa;
+}
+
+/* Estilo de los Formularios */
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+    color: #495057;
+}
+
+.form-control {
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.25);
+}
+
+/* Layout del formulario */
+.row {
+    margin-bottom: 15px;
+}
+
+.row .col-md-6, 
+.row .col-md-3 {
+    padding: 0 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+/* Footer */
+.modal-footer {
+    padding: 1rem 1.5rem;
+    background-color: #f1f1f1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #e9ecef;
+}
+
+.modal-footer .btn {
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+/* Ajuste para pantallas pequeñas */
+@media (max-width: 768px) {
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .row {
+        margin-bottom: 10px;
+    }
+
+    .modal-footer {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+    
+        </style>
+    </head>
+    
+<body>
+
+    <div class="d-flex">
+      
+        <!-- Sidebar -->
+<div class="sidebar d-flex flex-column  text-white">
+    <h3 class="text-center fw-bold mb-4">UNAPEC</h3>
+
+    <a href="#" >
+        <i class="fas fa-users"></i> Gestión de Estudiantes
+    </a>
+</div>
+<!-- Botón de Menú para Móviles -->
+<button class="menu-toggle  d-md-none">
+    <i class="fas fa-bars"></i>
+</button>
+
+    
+    <!-- Main Content -->
+    <div class="container-fluid px-4 py-5">
+        <div class="content bg-white rounded shadow-lg p-5">
+            <!-- Navbar -->
+            <nav class="navbar navbar-expand-lg navbar-light bg-light rounded mb-4">
+                <div class="container-fluid">
+                    <a class="navbar-brand fw-bold text-success" href="#">
+                        <i class="fas fa-user-graduate me-2"></i> Gestión de Estudiantes
+                    </a>
+                </div>
+            </nav>
+    
+            <!-- Header Section -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-success fw-bold">
+                    <i class="fas fa-users me-2"></i>Listado de Estudiantes
+                </h2>
+                <button class="btn btn-outline-primary d-flex align-items-center shadow-sm" 
+                        data-bs-toggle="modal" data-bs-target="#myModal">
+                    <i class="fas fa-plus-circle me-2"></i> Agregar Estudiante
+                </button>
+            </div>
+    
+            <!-- Search Input -->
+            <div class="mb-4">
+                <input type="text" id="searchByID" class="form-control shadow-sm rounded-pill" 
+                       placeholder="🔍 Buscar por Código" style="max-width: 300px;">
+            </div>
+    
+        <!-- DataTable -->
+        <div class="table-responsive shadow-sm rounded">
+            <table id="studentTable" class="table table-hover table-bordered align-middle">
+                <thead class="bg-gradient bg-success text-white text-center">
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Correo</th>
+                        <th>Celular</th>
+                        <th>Fecha Nac.</th>
+                        <th>Dirección</th>
+                        <th>Ciudad</th>
+                        <th>Código Postal</th>
+                        <th>Carrera</th>
+                        <th>Semestre</th>
+                        <th>Promedio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in estudiantes %}
+                    <tr>
+                        <td>{{ row.0 }}</td>
+                        <td>{{ row.1 }}</td>
+                        <td>{{ row.2 }}</td>
+                        <td>{{ row.3 }}</td>
+                        <td>{{ row.4 }}</td>
+                        <td>{{ row.5 }}</td>
+                        <td>{{ row.6 }}</td>
+                        <td>{{ row.7 }}</td>
+                        <td>{{ row.8 }}</td>
+                        <td>{{ row.9 }}</td>
+                        <td>{{ row.10 }}</td>
+                        <td>{{ row.11 }}</td>
+                        <td>
+                            <a href="#" 
+                            class="d-flex align-items-center btn-delete" 
+                            data-id="{{ row.0 }}" title="Eliminar">
+                             <i class="fas fa-trash-alt"></i>
+                            </a>
+                            <a class="d-flex align-items-center btn-editar"  href="/update/{{row.0}}" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#modaledit{{row.0}}">
+                                <i class="fas fa-edit me-2"></i>
+                            </a>
+                         
+                        </td>
+                        
+                        
+                        
+                    </tr>
+
+<!-- Modal de Edición -->
+<div id="modaledit{{ row.0 }}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="editStudentLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editStudentLabel">
+                    <i class="fas fa-user-graduate me-2"></i> Editar Estudiante
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm{{ row.0 }}" method="POST" novalidate>
+                    <input type="hidden" name="id" value="{{ row.0 }}">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit-nombre" class="font-weight-bold">Nombre</label>
+                                <input type="text" name="name" class="form-control" id="edit-nombre" value="{{ row.1 }}" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit-apellido" class="font-weight-bold">Apellido</label>
+                                <input type="text" name="apellido" class="form-control" id="edit-apellido" value="{{ row.2 }}" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit-email" class="font-weight-bold">Correo Electrónico</label>
+                                <input type="email" name="email" class="form-control" id="edit-email" value="{{ row.3 }}" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit-phone" class="font-weight-bold">Teléfono</label>
+                                <input type="text" name="phone" class="form-control" id="edit-phone" value="{{ row.4 }}" pattern="[0-9]{10}" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit-direccion" class="font-weight-bold">Dirección</label>
+                                <input type="text" name="direccion" class="form-control" id="edit-direccion" value="{{ row.6 }}" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit-codigo-postal" class="font-weight-bold">Código Postal</label>
+                                <input type="text" name="codigo_postal" class="form-control" id="edit-codigo-postal" value="{{ row.8 }}" pattern="\d{1,10}" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="edit-carrera" class="font-weight-bold">Carrera</label>
+                                <input type="text" name="carrera" class="form-control" id="edit-carrera" value="{{ row.9 }}" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="edit-semestre" class="font-weight-bold">Semestre</label>
+                                <input type="number" name="semestre" class="form-control" id="edit-semestre" value="{{ row.10 }}" min="1" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="edit-promedio" class="font-weight-bold">Promedio</label>
+                                <input type="number" name="promedio" class="form-control" id="edit-promedio" value="{{ row.11 }}" min="0" max="100" step="0.01" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                            <i class="fas fa-times-circle"></i> Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+        <!-- End of Edit Student Modal -->
+
+
+
+
+
+
+        {% endfor %}
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+</div>
+
+
+<!-- Agregar Estudiantes Modal -->
+<div id="myModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content shadow-lg rounded-4">
+            <div class="modal-header bg-gradient bg-success text-white rounded-top-4">
+                <h5 class="modal-title"><i class="fas fa-user-graduate me-2"></i>Agregar Estudiante</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4" style="background-color: #f8f9fa;">
+                <form id="studentForm" action="{{ url_for('insert') }}" method="POST" novalidate>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="nombre" class="form-label fw-bold">Nombre</label>
+                            <input type="text" name="Nombre" class="form-control" id="nombre" placeholder="Nombre" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="apellido" class="form-label fw-bold">Apellido</label>
+                            <input type="text" name="Apellido" class="form-control" id="apellido" placeholder="Apellido" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="correo" class="form-label fw-bold">Correo Electrónico</label>
+                            <input type="email" name="Correo" class="form-control" id="correo" placeholder="ejemplo@correo.com" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="celular" class="form-label fw-bold">Celular</label>
+                            <input type="tel" name="Celular" class="form-control" id="celular" placeholder="8091234567" pattern="[0-9]{10}" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="fecha" class="form-label fw-bold">Fecha de Nacimiento</label>
+                            <input type="date" name="Fecha" class="form-control" id="fecha" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="direccion" class="form-label fw-bold">Dirección</label>
+                            <input type="text" name="Dirección" class="form-control" id="direccion" placeholder="Dirección" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="ciudad" class="form-label fw-bold">Ciudad</label>
+                            <input type="text" name="Ciudad" class="form-control" id="ciudad" placeholder="Ciudad" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="codigoPostal" class="form-label fw-bold">Código Postal</label>
+                            <input type="text" name="CódigoPostal" class="form-control" id="codigoPostal" placeholder="00000" pattern="\d{5}" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="carrera" class="form-label fw-bold">Carrera</label>
+                            <input type="text" name="Carrera" class="form-control" id="carrera" placeholder="Carrera" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="semestre" class="form-label fw-bold">Semestre</label>
+                            <input type="number" name="Semestre" class="form-control" id="semestre" min="1" required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="promedio" class="form-label fw-bold">Promedio</label>
+                            <input type="number" name="Promedio" class="form-control" id="promedio" min="0" max="100" step="0.01" required>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer mt-4">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times-circle me-1"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-1"></i>Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<!-- Footer -->
+<div class="footer">
+    <p>© 2024 UNAPEC. Todos los derechos reservados.</p>
+</div>
+<!-- FontAwesome desde JS Delivr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<!-- DataTables JS y CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script> 
+<script>
+
+document.querySelector('.menu-toggle').addEventListener('click', function () {
+    document.querySelector('.sidebar').classList.toggle('active');
+});
+
+$(document).ready(function () {
+    // Inicializa el DataTable
+    var table = $('#studentTable').DataTable({
+        paging: true,
+        ordering: true,
+        columnDefs: [
+            { orderable: false, targets: 12 } // Deshabilitar ordenación en columna Acciones
+        ],
+        language: {
+            search: "", // Vacía el texto del buscador por defecto
+            lengthMenu: "Mostrar _MENU_ registros",
+            info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+            paginate: {
+                first: "Primero",
+                last: "Último",
+                next: "Siguiente",
+                previous: "Anterior"
+            },
+            zeroRecords: "No se encontraron registros",
+            infoEmpty: "Mostrando 0 a 0 de 0 registros",
+            infoFiltered: "(filtrado de _MAX_ registros totales)"
+        },
+        dom: 'lrtip' // Oculta el buscador predeterminado de DataTables
+    });
+
+    // Búsqueda personalizada por la columna Código (índice 0)
+    $('#searchByID').on('keyup', function () {
+        table
+            .column(0) // Búsqueda solo en la columna Código
+            .search(this.value)
+            .draw();
+    });
+});
+
+
+
+
+function Cerra(){
+    window.location.href = "{{ url_for('Index') }}";
+
+}
+
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const editForms = document.querySelectorAll('[id^="editForm"]'); // Seleccionar todos los formularios de edición
+
+    editForms.forEach(form => {
+        form.addEventListener('submit', function (event) {
+            event.preventDefault(); // Evitar el envío automático del formulario
+
+            const formData = new FormData(this); // Serializar los datos del formulario
+        
+            const codigoPostal = formData.get('codigo_postal'); // Validar código postal
+
+            if (!/^\d{1,10}$/.test(codigoPostal)) {
+                const codigoPostalInput = form.querySelector('#edit-codigo-postal');
+                if (codigoPostalInput) {
+                    codigoPostalInput.classList.add('is-invalid');
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: '¡Error!',
+                    text: 'El código postal debe tener un máximo de 10 dígitos.',
+                    confirmButtonColor: '#d33'
+                });
+                return; // Detener si la validación del código postal falla
+            }
+
+            // Obtener el ID del estudiante
+            const studentId = formData.get('id');
+
+            // Envío de la actualización
+            fetch(`/update/${studentId}`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.message);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Actualizado!',
+                    text: data.message,
+                    confirmButtonColor: '#3085d6'
+                }).then(result => {
+                    if (result.isConfirmed) {
+                        location.reload(); // Recargar página después de actualizar
+                    }
+                });
+            })
+            .catch(error => {
+                Swal.fire({
+                    icon: 'error',
+                    title: '¡Error!',
+                    text: error.message,
+                    confirmButtonColor: '#d33'
+                });
+            });
+        });
+    });
+});
+
+// Agregar Estudiante
+document.getElementById('studentForm').addEventListener('submit', function (event) {
+    event.preventDefault(); // Evita el envío automático del formulario
+
+    let formData = new FormData(this); // Serializa los datos del formulario
+    const camposObligatorios = [
+        { id: 'nombre', nombre: 'Nombre' },
+        { id: 'apellido', nombre: 'Apellido' },
+        { id: 'correo', nombre: 'Correo Electrónico' },
+        { id: 'celular', nombre: 'Celular' },
+        { id: 'fecha', nombre: 'Fecha de Nacimiento' },
+        { id: 'direccion', nombre: 'Dirección' },
+        { id: 'ciudad', nombre: 'Ciudad' },
+        { id: 'codigoPostal', nombre: 'Código Postal' },
+        { id: 'carrera', nombre: 'Carrera' },
+        { id: 'semestre', nombre: 'Semestre' },
+        { id: 'promedio', nombre: 'Promedio' }
+    ];
+
+    let formIsValid = true; // Variable para comprobar si el formulario es válido
+
+    // Validar que los campos no estén vacíos y resaltar en rojo si es necesario
+    for (const campo of camposObligatorios) {
+        const input = document.getElementById(campo.id);
+        if (!input.value.trim()) {
+            input.classList.add('is-invalid'); // Añade la clase 'is-invalid' para resaltarlo en rojo
+            Swal.fire({
+                icon: 'error',
+                title: '¡Error!',
+                text: `El campo ${campo.nombre} no puede estar vacío.`,
+                confirmButtonColor: '#d33'
+            });
+            formIsValid = false;
+            return; // Detener el envío al encontrar el primer campo vacío
+        } else {
+            input.classList.remove('is-invalid'); // Remueve la clase si ya está completo
+        }
+    }
+
+    const codigoPostal = formData.get('CódigoPostal'); // Validar código postal
+
+    if (!/^\d{1,10}$/.test(codigoPostal)) {
+        document.getElementById('codigoPostal').classList.add('is-invalid');
+        Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: 'El código postal debe tener un máximo de 10 dígitos.',
+            confirmButtonColor: '#d33'
+        });
+        return; // Detener el envío si la validación falla
+    } else {
+        document.getElementById('codigoPostal').classList.remove('is-invalid');
+    }
+
+    // Si la validación pasa, continuar con el envío
+    fetch('/insert', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(data => {
+                throw new Error(data.message); // Lanzar error con mensaje personalizado
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        Swal.fire({
+            icon: 'success',
+            title: '¡Éxito!',
+            text: data.message,
+            confirmButtonColor: '#3085d6'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{{ url_for('Index') }}";
+            }
+        });
+    })
+    .catch(error => {
+        Swal.fire({
+            icon: 'error',
+            title: '¡Error!',
+            text: error.message,
+            confirmButtonColor: '#d33'
+        });
+    });
+});
+
+
+
+
+//Eliminar
+document.addEventListener('DOMContentLoaded', function () {
+    // Captura los botones de eliminar
+    const deleteButtons = document.querySelectorAll('.btn-delete');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault(); // Evita el comportamiento por defecto del enlace
+
+            const studentId = this.getAttribute('data-id'); // Obtener el ID del estudiante
+
+            // Confirmación con SweetAlert
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: 'No podrás revertir esta acción.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Enviar solicitud DELETE mediante fetch
+                    fetch(`/delete/${studentId}`, {
+                        method: 'DELETE'
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(data => {
+                                throw new Error(data.message); // Lanzar error si hay fallo
+                            });
+                        }
+                        return response.json(); // Obtener la respuesta JSON
+                    })
+                    .then(data => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: '¡Eliminado!',
+                            text: data.message,
+                            confirmButtonColor: '#3085d6'
+                        }).then(() => {
+                            // Eliminar la fila correspondiente de la tabla
+                            const row = button.closest('tr');
+                            row.remove(); // Eliminar la fila del estudiante
+                        });
+                    })
+                    .catch(error => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: '¡Error!',
+                            text: error.message,
+                            confirmButtonColor: '#d33'
+                        });
+                    });
+                }
+            });
+        });
+    });
+});
+
+
+
+
+</script>
+
+</body>
+</html>
