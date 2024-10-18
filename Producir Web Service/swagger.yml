@@ -1,0 +1,244 @@
+swagger: "2.0"
+info:
+  description: API para gestionar estudiantes
+  version: "1.0.0"
+  title: Estudiantes REST API
+
+basePath: /api
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /estudiantes:
+    get:
+      operationId: estudiantes.get_all
+      tags:
+        - Estudiantes
+      summary: Leer la lista de Estudiantes
+      description: Obtener toda la lista de estudiantes registrados
+      responses:
+        200:
+          description: Lista de estudiantes obtenida exitosamente
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: integer
+                nombre:
+                  type: string
+                apellido:
+                  type: string
+                email:
+                  type: string
+                telefono:
+                  type: string
+                fecha_nacimiento:
+                  type: string
+                  format: date
+                carrera:
+                  type: string
+                semestre:
+                  type: integer
+                promedio:
+                  type: number
+                  format: float
+
+    post:
+      operationId: estudiantes.add
+      tags:
+        - Estudiantes
+      summary: Agregar un nuevo estudiante
+      description: Crear un nuevo estudiante y asignar automáticamente su ID
+      parameters:
+        - name: estudiante
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              nombre:
+                type: string
+                description: Nombre del estudiante
+              apellido:
+                type: string
+                description: Apellido del estudiante
+              email:
+                type: string
+                description: Correo electrónico del estudiante
+              telefono:
+                type: string
+                description: Número de teléfono del estudiante
+              fecha_nacimiento:
+                type: string
+                format: date
+                description: Fecha de nacimiento del estudiante
+              carrera:
+                type: string
+                description: Carrera del estudiante
+              semestre:
+                type: integer
+                description: Semestre actual del estudiante
+              promedio:
+                type: number
+                format: float
+                description: Promedio del estudiante
+      responses:
+        201:
+          description: Estudiante agregado exitosamente
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+                description: ID del estudiante asignado automáticamente
+              nombre:
+                type: string
+              apellido:
+                type: string
+              email:
+                type: string
+              telefono:
+                type: string
+              fecha_nacimiento:
+                type: string
+                format: date
+              carrera:
+                type: string
+              semestre:
+                type: integer
+              promedio:
+                type: number
+                format: float
+        400:
+          description: Datos inválidos o incompletos
+
+  /estudiantes/{id}:
+    get:
+      operationId: estudiantes.get_one
+      tags:
+        - Estudiantes
+      summary: Obtener un estudiante por ID
+      description: Obtener los detalles de un estudiante específico utilizando su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          description: ID del estudiante a obtener
+      responses:
+        200:
+          description: Estudiante obtenido exitosamente
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+              nombre:
+                type: string
+              apellido:
+                type: string
+              email:
+                type: string
+              telefono:
+                type: string
+              fecha_nacimiento:
+                type: string
+                format: date
+              carrera:
+                type: string
+              semestre:
+                type: integer
+              promedio:
+                type: number
+                format: float
+        404:
+          description: Estudiante no encontrado
+
+    put:
+      operationId: estudiantes.update
+      tags:
+        - Estudiantes
+      summary: Actualizar un estudiante por ID
+      description: Actualizar los datos de un estudiante específico utilizando su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          description: ID del estudiante a actualizar
+        - name: estudiante
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              nombre:
+                type: string
+              apellido:
+                type: string
+              email:
+                type: string
+              telefono:
+                type: string
+              fecha_nacimiento:
+                type: string
+                format: date
+              carrera:
+                type: string
+              semestre:
+                type: integer
+              promedio:
+                type: number
+                format: float
+      responses:
+        200:
+          description: Estudiante actualizado exitosamente
+          schema:
+            type: object
+            properties:
+              id:
+                type: integer
+              nombre:
+                type: string
+              apellido:
+                type: string
+              email:
+                type: string
+              telefono:
+                type: string
+              fecha_nacimiento:
+                type: string
+                format: date
+              carrera:
+                type: string
+              semestre:
+                type: integer
+              promedio:
+                type: number
+                format: float
+        404:
+          description: Estudiante no encontrado
+        400:
+          description: Datos inválidos o incompletos
+
+    delete:
+      operationId: estudiantes.delete
+      tags:
+        - Estudiantes
+      summary: Eliminar un estudiante por ID
+      description: Eliminar un estudiante específico utilizando su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: integer
+          description: ID del estudiante a eliminar
+      responses:
+        200:
+          description: Estudiante eliminado exitosamente
+        404:
+          description: Estudiante no encontrado
