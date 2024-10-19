@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Editar Estudiante - UNAPEC</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- FontAwesome CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+
+  <!-- SweetAlert -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    /* Imagen de fondo */
+    body {
+      background-image: url('https://img.freepik.com/foto-gratis/dos-estudiantes-felices-mochilas-libros-sus-manos-sonriendo-camara_8353-6384.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Overlay para oscurecer el fondo */
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      background-color: #457b9d;
+      color: white;
+      min-height: 100vh;
+      width: 250px;
+      position: fixed;
+    }
+
+    .sidebar h3 {
+      text-align: center;
+      padding: 20px;
+      font-weight: bold;
+    }
+
+    .sidebar a {
+      color: white;
+      padding: 15px;
+      display: block;
+      text-decoration: none;
+      transition: background-color 0.3s;
+    }
+
+    .sidebar a:hover {
+      background-color: #1d3557;
+    }
+
+    /* Contenedor del formulario */
+    .form-container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      max-width: 500px;
+      margin: 100px auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    h2 {
+      color: #2a9d8f;
+    }
+
+    .input-group-text {
+      background-color: #457b9d;
+      color: white;
+      border: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      background-color: #28a745;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Overlay -->
+  <div class="overlay"></div>
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h3>UNAPEC</h3>
+    <a href="/"><i class="fas fa-home me-2"></i> Inicio</a>
+    <a href="/agregar"><i class="fas fa-plus-circle me-2"></i> Agregar Estudiante</a>
+  </div>
+
+  <!-- Contenido Principal -->
+  <div class="container">
+    <nav class="navbar navbar-light bg-light mb-4">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+          <i class="fas fa-edit me-2"></i> Editar Estudiante
+        </a>
+      </div>
+    </nav>
+
+    <div class="form-container">
+      <h2 class="text-center mb-4">Formulario de Edición</h2>
+
+      <form id="formEditar">
+        <input type="hidden" name="id" value="<%= estudiante.id %>">
+
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-user"></i></span>
+          <input type="text" class="form-control" name="nombre" value="<%= estudiante.nombre %>" required>
+        </div>
+
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-user"></i></span>
+          <input type="text" class="form-control" name="apellido" value="<%= estudiante.apellido %>" required>
+        </div>
+
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-graduation-cap"></i></span>
+          <input type="text" class="form-control" name="carrera" value="<%= estudiante.carrera %>" required>
+        </div>
+
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+          <input type="email" class="form-control" name="email" value="<%= estudiante.email %>" required>
+        </div>
+
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
+          <input type="date" class="form-control" name="fecha_nacimiento" value="<%= estudiante.fecha_nacimiento %>" required>
+        </div>
+
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-percent"></i></span>
+          <input type="number" step="0.1" class="form-control" name="promedio" value="<%= estudiante.promedio %>" required>
+        </div>
+
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-layer-group"></i></span>
+          <input type="number" class="form-control" name="semestre" value="<%= estudiante.semestre %>" required>
+        </div>
+
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-phone"></i></span>
+          <input type="text" class="form-control" name="telefono" value="<%= estudiante.telefono %>" required>
+        </div>
+
+        <button type="submit"><i class="fas fa-save me-2"></i> Guardar Cambios</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('formEditar');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      data.promedio = parseFloat(data.promedio);
+      data.semestre = parseInt(data.semestre, 10);
+
+      try {
+        const response = await fetch(`/editar/${data.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+          Swal.fire({
+            title: '¡Estudiante Editado!',
+            text: 'El estudiante ha sido editado exitosamente.',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+          }).then(() => {
+            window.location.href = '/';
+          });
+        } else {
+          const errorData = await response.json();
+          Swal.fire({
+            title: 'Error',
+            text: `Error al editar estudiante: ${errorData.detail}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+          });
+        }
+      } catch (error) {
+        console.error('Error al editar estudiante:', error.message);
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudo editar el estudiante. Intenta de nuevo.',
+          icon: 'error',
+          confirmButtonText: 'Aceptar'
+        });
+      }
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
