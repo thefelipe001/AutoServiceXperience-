@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Libros</title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.25/css/dataTables.bootstrap4.min.css">
+
+    <!-- jQuery, DataTable y Bootstrap JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.25/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            margin-bottom: 20px;
+        }
+        .spinner {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Gestión de Libros</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="#">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Acerca de</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Spinner de Carga -->
+    <div class="spinner">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">Cargando...</span>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <h2 class="text-center">Gestión de Libros</h2>
+        <button class="btn btn-primary mb-3" data-toggle="modal" data-target="#addBookModal">Agregar Libro</button>
+
+        <table class="table table-bordered" id="bookTable">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Descripción</th>
+                    <th>Páginas</th>
+                    <th>Fecha de Publicación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <!-- Modal para Agregar Libro -->
+    <div class="modal fade" id="addBookModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Libro</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="addBookForm">
+                        <div class="form-group">
+                            <label for="title">Título</label>
+                            <input type="text" class="form-control" id="title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Descripción</label>
+                            <textarea class="form-control" id="description" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="pageCount">Páginas</label>
+                            <input type="number" class="form-control" id="pageCount" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="publishDate">Fecha de Publicación</label>
+                            <input type="date" class="form-control" id="publishDate" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            const table = $('#bookTable').DataTable();
+
+            function showLoading(show) {
+                if (show) {
+                    $('.spinner').show();
+                } else {
+                    $('.spinner').hide();
+                }
+            }
+
+            function loadBooks() {
+                showLoading(true);
+                $.ajax({
+                    url: "/books",
+                    method: "GET",
+                    success: function(data) {
+                        table.clear();
+                        data.forEach(book => {
+                            table.row.add([
+                                book.id,
+                                book.title,
+                                book.description,
+                                book.pageCount,
+                                new Date(book.publishDate).toLocaleDateString(),
+                                `<button class="btn btn-danger btn-sm delete-btn" data-id="${book.id}">Eliminar</button>`
+                            ]).draw();
+                        });
+                        showLoading(false);
+                    },
+                    error: function(err) {
+                        console.error("Error al cargar libros", err);
+                        showLoading(false);
+                    }
+                });
+            }
+
+            loadBooks();
+
+            $("#addBookForm").submit(function(e) {
+                e.preventDefault();
+                const newBook = {
+                    title: $("#title").val(),
+                    description: $("#description").val(),
+                    pageCount: $("#pageCount").val(),
+                    publishDate: $("#publishDate").val()
+                };
+                $.ajax({
+                    url: "/books",
+                    method: "POST",
+                    contentType: "application/json",
+                    data: JSON.stringify(newBook),
+                    success: function() {
+                        Swal.fire("Éxito", "Libro agregado correctamente", "success");
+                        $("#addBookModal").modal('hide');
+                        loadBooks();
+                    },
+                    error: function(err) {
+                        console.error("Error al agregar libro", err);
+                    }
+                });
+            });
+
+            $(document).on("click", ".delete-btn", function() {
+                const bookId = $(this).data("id");
+                Swal.fire({
+                    title: "¿Estás seguro?",
+                    text: "¡No podrás revertir esto!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Sí, eliminar"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        $.ajax({
+                            url: `/books/${bookId}`,
+                            method: "DELETE",
+                            success: function() {
+                                Swal.fire("Eliminado", "El libro ha sido eliminado.", "success");
+                                loadBooks();
+                            },
+                            error: function(err) {
+                                console.error("Error al eliminar libro", err);
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+
+</body>
+</html>
